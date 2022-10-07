@@ -66,12 +66,14 @@ func broadCast(m *sync.Mutex) {
 	for {
 		select {
 		case info := <-channels.messages:
+			m.Lock()
 			for n, c := range users {
 				if info.Conn.RemoteAddr() != c.RemoteAddr() {
 					realTtime := time.Now().Format("2006-01-02 15:04:05")
 					fmt.Fprintf(c, "\n[%s]%s[%s][%s]:", realTtime, info.Message, realTtime, n[:len(n)-1])
 				}
 			}
+			m.Unlock()
 		case user := <-channels.jlCh:
 			if user.JL {
 				fmt.Fprint(user.Conn, printLog())
